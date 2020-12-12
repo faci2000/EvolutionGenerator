@@ -20,7 +20,7 @@ public class AnimalTest {
             System.out.println(testAnimal.getPosition());
         }
     }
-    
+
 
     @Test
     public void animalEatTest(){

@@ -62,6 +62,10 @@ public class Animal extends MapItem implements Comparable{
 
     }
 
+    public Boolean isDead(){
+        return energy==0;
+    }
+
     @Override
     public int compareTo(Object o) {
         return this.energy-((Animal)o).energy;

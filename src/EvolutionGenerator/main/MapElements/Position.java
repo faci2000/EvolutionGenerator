@@ -1,5 +1,7 @@
 package MapElements;
 
+import java.util.Random;
+
 public class Position {
     protected int x;
     protected int y;
@@ -47,6 +49,21 @@ public class Position {
     public void checkAndCorrectPosition(int xMax, int yMax){
         this.setX(checkRange(this.getX(),xMax));
         this.setY(checkRange(this.getY(),yMax));
+    }
+
+    public static Position generateRandomPositionInRange(int xMax, int yMax){
+        return Position.generateRandomPositionInRange(xMax,yMax,0,0);
+    }
+
+    public static Position generateRandomPositionInRange(int xMax, int yMax,int xMin, int yMin){
+        return new Position(new Random().nextInt(xMax-xMin)+xMin,new Random().nextInt(yMax-yMin)+yMin);
+    }
+
+    public static Position generateRandomPositionInRangeWithExcludedScope(int xMaxRange, int yMaxRange,int xExcludedMax, int yExcludedMax,Position offset){
+        int avbPlaces= xMaxRange*yMaxRange-xExcludedMax*yExcludedMax;
+        int selectedPlace= new Random().nextInt(avbPlaces);
+        selectedPlace += Math.min(xExcludedMax*yExcludedMax,((Math.max(0,selectedPlace+1-(offset.y*xMaxRange+ offset.x))==0)?0:Math.ceil((((float)Math.max(0,selectedPlace+1-(offset.y*xMaxRange+ offset.x)))/(xMaxRange-xExcludedMax))))*xExcludedMax);
+        return new Position(selectedPlace%xMaxRange,selectedPlace/xMaxRange);
     }
 
     @Override
