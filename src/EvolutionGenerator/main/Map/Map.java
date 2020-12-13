@@ -105,18 +105,41 @@ public class Map {
     }
 
     public void feedAnimals(){
-        if(this.hasMoreItemsThan(grassesSet))               // hasMoreItemsThan() is only to make almost whole sentence from instructions ;)
+        if(this.hasMoreItemsThan(grassesSet))               // hasMoreItemsThan() is only to make almost whole sentence from java code ;)
             feedAnimalsIteratingOverGrassesSet();
         else
             feedAnimalsIteratingOverAnimalsSet();
     }
 
     public void feedAnimalsIteratingOverGrassesSet(){
-
+        Iterator<Position> grassesPositionIterator = grassesSet.keySet().iterator();
+        feedAnimalsUsing(grassesPositionIterator,grassesSet);
     }
 
     public void feedAnimalsIteratingOverAnimalsSet(){
+        Iterator<Position> animalPositionIterator = animalsSet.keySet().iterator();
+        feedAnimalsUsing(animalPositionIterator,animalsSet);
+    }
 
+    public void feedAnimalsUsing(Iterator<Position> positionIterator,HashMap<Position,?> positionHashMap){
+        while(positionIterator.hasNext()){
+            Position checkPosition = positionIterator.next();
+            if(positionHashMap.containsKey(checkPosition)){
+                animalsSet.get(checkPosition).first().eat();
+                removeGrassFromGrassSet(checkPosition);
+            }
+        }
+    }
+
+    public void reproduceAnimals(){
+        Iterator<Position> positionIterator = animalsSet.keySet().iterator();
+        while(positionIterator.hasNext()) {
+            Position animalsPlace = positionIterator.next();
+            if(animalsSet.get(animalsPlace).size()>1){
+                Animal newBornAnimal = animalsSet.get(animalsPlace).first().copulateWith(((Animal)animalsSet.get(animalsPlace).toArray()[1]));
+                addAnimalToAnimalsSet(newBornAnimal);
+            }
+        }
     }
 
 
