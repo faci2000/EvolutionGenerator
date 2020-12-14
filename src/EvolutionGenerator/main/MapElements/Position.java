@@ -1,5 +1,6 @@
 package MapElements;
 
+import java.util.Objects;
 import java.util.Random;
 
 public class Position {
@@ -74,6 +75,10 @@ public class Position {
     @Override
     public boolean equals(Object other) {
         return (this.getX() == ((Position) other).getX())&&(this.getY() == ((Position) other).getY());
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.x, this.y);
     }
 
     public int getX() {

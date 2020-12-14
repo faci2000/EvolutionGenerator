@@ -4,10 +4,14 @@ import MapElements.Animal;
 import MapElements.Grass;
 import MapElements.Position;
 
+import Observer.Observer;
+import Observer.Observable;
+import Observer.PiceOfInformation;
+
 import java.util.*;
 
-public class Map {
-    private HashMap<Position, SortedSet<Animal>> animalsSet;
+public class Map implements Observer, Observable {
+    private HashMap<Position, TreeSet<Animal>> animalsSet;
     private HashMap<Position, Grass> grassesSet;
     private int mapWidth;
     private int mapHeight;
@@ -15,14 +19,18 @@ public class Map {
     private int jungleHeight;
     private Position jungleOffset;
     private int mapId;
+    ArrayList<Observer> observers;
 
     public Map(int mapWidth,int mapHeight,int jungleWidth,int jungleHeight,int mapId){
+        this.animalsSet = new HashMap<>();
+        this.grassesSet = new HashMap<>();
         this.setMapWidth(mapWidth);
         this.setMapHeight(mapHeight);
         this.setJungleWidth(jungleWidth);
         this.setJungleHeight(jungleHeight);
         this.setMapId(mapId);
         setJungleOffset(new Position((mapWidth-jungleWidth)/2,(mapHeight-jungleHeight)/2));
+        this.observers = new ArrayList<>();
     }
 
     public boolean isInJungle(int x, int y){
@@ -33,9 +41,9 @@ public class Map {
         addAnimalTo(this.getAnimalsSet(),animal);
     }
 
-    public void addAnimalTo(HashMap<Position, SortedSet<Animal>> animalsSet,Animal animal){
+    public void addAnimalTo(HashMap<Position, TreeSet<Animal>> animalsSet,Animal animal){
         if(!animalsSet.containsKey(animal.getPosition()))
-            animalsSet.put(new Position(animal.getPosition()),new TreeSet<Animal>());
+            animalsSet.put(new Position(animal.getPosition()),new TreeSet<>());
         animalsSet.get(animal.getPosition()).add(animal);
     }
 
@@ -43,7 +51,7 @@ public class Map {
         return removeAnimalFrom(this.getAnimalsSet(),animal);
     }
 
-    public Animal removeAnimalFrom(HashMap<Position, SortedSet<Animal>> animalsSet,Animal animal){
+    public Animal removeAnimalFrom(HashMap<Position, TreeSet<Animal>> animalsSet,Animal animal){
         animalsSet.get(animal.getPosition()).remove(animal);
         if(animalsSet.get(animal.getPosition()).isEmpty())
             animalsSet.remove(animal.getPosition());
@@ -87,10 +95,10 @@ public class Map {
     }
 
     public void rotateAndMoveEachAnimal(){
-        HashMap<Position, SortedSet<Animal>> refreshedAnimalsSet = new HashMap<>();
+        HashMap<Position, TreeSet<Animal>> refreshedAnimalsSet = new HashMap<>();
         for (Position position : getAnimalsSet().keySet()) {
             for (Animal animal : getAnimalsSet().get(position)) {
-                removeAnimalFromAnimalsSet(animal);
+                //removeAnimalFromAnimalsSet(animal);
                 animal.moveYourself(getMapHeight(), getMapWidth());
                 addAnimalTo(refreshedAnimalsSet, animal);
             }
@@ -141,11 +149,11 @@ public class Map {
     }
 
 
-    public HashMap<Position, SortedSet<Animal>> getAnimalsSet() {
+    public HashMap<Position, TreeSet<Animal>> getAnimalsSet() {
         return animalsSet;
     }
 
-    public void setAnimalsSet(HashMap<Position, SortedSet<Animal>> animalsSet) {
+    public void setAnimalsSet(HashMap<Position, TreeSet<Animal>> animalsSet) {
         this.animalsSet = animalsSet;
     }
 
@@ -203,5 +211,27 @@ public class Map {
 
     public void setMapId(int mapId) {
         this.mapId = mapId;
+    }
+
+
+    @Override
+    public void update(PiceOfInformation piceOfInformation) {
+        inform(piceOfInformation);
+    }
+
+    @Override
+    public void inform(PiceOfInformation piceOfInformation) {
+        for(Observer observer : observers)
+            observer.update(piceOfInformation);
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        this.observers.remove(observer);
     }
 }
