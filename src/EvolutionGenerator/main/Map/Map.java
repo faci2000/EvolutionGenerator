@@ -11,7 +11,7 @@ import Observer.PiceOfInformation;
 import java.util.*;
 
 public class Map implements Observer, Observable {
-    private HashMap<Position, TreeSet<Animal>> animalsSet;
+    private HashMap<Position, PriorityQueue<Animal>> animalsSet;
     private HashMap<Position, Grass> grassesSet;
     private int mapWidth;
     private int mapHeight;
@@ -41,9 +41,9 @@ public class Map implements Observer, Observable {
         addAnimalTo(this.getAnimalsSet(),animal);
     }
 
-    public void addAnimalTo(HashMap<Position, TreeSet<Animal>> animalsSet,Animal animal){
+    public void addAnimalTo(HashMap<Position, PriorityQueue<Animal>> animalsSet,Animal animal){
         if(!animalsSet.containsKey(animal.getPosition()))
-            animalsSet.put(new Position(animal.getPosition()),new TreeSet<>());
+            animalsSet.put(new Position(animal.getPosition()),new PriorityQueue<>());
         animalsSet.get(animal.getPosition()).add(animal);
     }
 
@@ -51,7 +51,7 @@ public class Map implements Observer, Observable {
         return removeAnimalFrom(this.getAnimalsSet(),animal);
     }
 
-    public Animal removeAnimalFrom(HashMap<Position, TreeSet<Animal>> animalsSet,Animal animal){
+    public Animal removeAnimalFrom(HashMap<Position, PriorityQueue<Animal>> animalsSet,Animal animal){
         animalsSet.get(animal.getPosition()).remove(animal);
         if(animalsSet.get(animal.getPosition()).isEmpty())
             animalsSet.remove(animal.getPosition());
@@ -66,17 +66,21 @@ public class Map implements Observer, Observable {
         return this.getGrassesSet().containsKey(position);
     }
 
+    private boolean isAnyAnimalOn(Position position){ return this.getAnimalsSet().containsKey(position);}
+
     public void growGrassesOnMap(){
         for(int i=0;i<2;i++){
             Position newGrassPosition;
             do{
                 newGrassPosition = Position.generateRandomPositionInRangeWithExcludedScope(getMapWidth(), getMapHeight(), getJungleWidth(), getJungleHeight(), getJungleOffset());
-            }while(!isGrassOn(newGrassPosition));
+            }while(isGrassOn(newGrassPosition)||isAnyAnimalOn(newGrassPosition));
             getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
+            inform(new PiceOfInformation(null,newGrassPosition,true));
             do{
-                newGrassPosition=Position.generateRandomPositionInRange(getJungleOffset().getX(), getJungleOffset().getY(), getJungleOffset().getX()+ getJungleWidth() -1, getJungleOffset().getY()+ getJungleHeight() -1);
-            }while(!isGrassOn(newGrassPosition));
+                newGrassPosition=Position.generateRandomPositionInRange(getJungleOffset().getX()+ getJungleWidth() -1, getJungleOffset().getY()+ getJungleHeight() -1,getJungleOffset().getX(), getJungleOffset().getY()) ;
+            }while(isGrassOn(newGrassPosition)||isAnyAnimalOn(newGrassPosition));
             getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
+            inform(new PiceOfInformation(null,newGrassPosition,true));
         }
     }
 
@@ -86,16 +90,19 @@ public class Map implements Observer, Observable {
             for (Animal animal : getAnimalsSet().get(position)) {
                 if (animal.isDead()) {                        //possible problem with deleting set, before end of iterating
                     deadAnimals.add(animal);
-                    removeAnimalFromAnimalsSet(animal);
+                    //removeAnimalFromAnimalsSet(animal);
+                    inform(new PiceOfInformation(animal.getPosition(),null));
                 }
 
             }
         }
+        for(Animal animal : deadAnimals)
+                removeAnimalFromAnimalsSet(animal);
         return deadAnimals;
     }
 
     public void rotateAndMoveEachAnimal(){
-        HashMap<Position, TreeSet<Animal>> refreshedAnimalsSet = new HashMap<>();
+        HashMap<Position, PriorityQueue<Animal>> refreshedAnimalsSet = new HashMap<>();
         for (Position position : getAnimalsSet().keySet()) {
             for (Animal animal : getAnimalsSet().get(position)) {
                 //removeAnimalFromAnimalsSet(animal);
@@ -119,20 +126,21 @@ public class Map implements Observer, Observable {
 
     public void feedAnimalsIteratingOverGrassesSet(){
         Iterator<Position> grassesPositionIterator = getGrassesSet().keySet().iterator();
-        feedAnimalsUsing(grassesPositionIterator, getGrassesSet());
+        feedAnimalsUsing(grassesPositionIterator, getAnimalsSet());
     }
 
     public void feedAnimalsIteratingOverAnimalsSet(){
         Iterator<Position> animalPositionIterator = getAnimalsSet().keySet().iterator();
-        feedAnimalsUsing(animalPositionIterator, getAnimalsSet());
+        feedAnimalsUsing(animalPositionIterator, getGrassesSet());
     }
 
     public void feedAnimalsUsing(Iterator<Position> positionIterator,HashMap<Position,?> positionHashMap){
         while(positionIterator.hasNext()){
             Position checkPosition = positionIterator.next();
             if(positionHashMap.containsKey(checkPosition)){
-                getAnimalsSet().get(checkPosition).first().eat();
+                getAnimalsSet().get(checkPosition).peek().eat();
                 removeGrassFromGrassSet(checkPosition);
+                inform(new PiceOfInformation(checkPosition,null,true));
             }
         }
     }
@@ -142,18 +150,18 @@ public class Map implements Observer, Observable {
         while(positionIterator.hasNext()) {
             Position animalsPlace = positionIterator.next();
             if(getAnimalsSet().get(animalsPlace).size()>1){
-                Animal newBornAnimal = getAnimalsSet().get(animalsPlace).first().copulateWith(((Animal) getAnimalsSet().get(animalsPlace).toArray()[1]));
+                Animal newBornAnimal = getAnimalsSet().get(animalsPlace).peek().copulateWith(((Animal) getAnimalsSet().get(animalsPlace).toArray()[1]));
                 addAnimalToAnimalsSet(newBornAnimal);
             }
         }
     }
 
 
-    public HashMap<Position, TreeSet<Animal>> getAnimalsSet() {
+    public HashMap<Position, PriorityQueue<Animal>> getAnimalsSet() {
         return animalsSet;
     }
 
-    public void setAnimalsSet(HashMap<Position, TreeSet<Animal>> animalsSet) {
+    public void setAnimalsSet(HashMap<Position, PriorityQueue<Animal>> animalsSet) {
         this.animalsSet = animalsSet;
     }
 

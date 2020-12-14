@@ -57,7 +57,7 @@ public class Position {
     }
 
     public static Position generateRandomPositionInRange(int xMax, int yMax,int xMin, int yMin){
-        return new Position(new Random().nextInt(xMax-xMin)+xMin,new Random().nextInt(yMax-yMin)+yMin);
+        return new Position(new Random().nextInt(xMax-xMin+1)+xMin,new Random().nextInt(yMax-yMin+1)+yMin);
     }
 
     public static Position generateRandomPositionInRangeWithExcludedScope(int xMaxRange, int yMaxRange,int xExcludedMax, int yExcludedMax,Position offset){

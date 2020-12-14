@@ -49,6 +49,7 @@ public class Animal extends MapItem implements Comparable, Observable {
         Position oldPosition =this.getPosition();
         this.setPosition(this.getPosition().makeMoveInDirection(this.direction));
         this.getPosition().checkAndCorrectPosition(horizontalMapMax,verticalMapMax);
+        this.dailyEnergyDrain();
         inform(new PiceOfInformation(oldPosition,this.getPosition()));
     }
 

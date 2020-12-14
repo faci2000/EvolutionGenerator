@@ -41,14 +41,13 @@ public class AppWindow extends Application implements Observer {
         sceneWidth=scene.getWidth();
 
         displayedMap=new Map(20,20,10,8,0);
-        Animal a1 = new Animal(new Position(0,1),0,new Gene(new int[]{4,4,4,4,4,4,4,4}),10,null,null);
+        Animal a1 = new Animal(new Position(5,5),0,new Gene(new int[]{4,4,4,4,4,4,4,4}),10,null,null);
         a1.addObserver(displayedMap);
-        Animal a2 = new Animal(new Position(19,19),0,new Gene(new int[]{25,1,1,1,1,1,1,1}),10,null,null);
+        Animal a2 = new Animal(new Position(5,6),0,new Gene(new int[]{25,1,1,1,1,1,1,1}),10,null,null);
         a2.addObserver(displayedMap);
         displayedMap.addAnimalToAnimalsSet(a1);
         displayedMap.addAnimalToAnimalsSet(a2);
         displayedMap.addObserver(this);
-
 
 
         mapRepresentation = drawMap();
@@ -56,29 +55,24 @@ public class AppWindow extends Application implements Observer {
 
         primaryStage.setScene(scene);
         primaryStage.show();
-        //((Rectangle)mapRepresentation[3][10].getChildren().get(0)).setFill(Color.ORANGE);
-//        mapRepresentation[3][10].getChildren().remove(1);
+
 
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), e -> {
+                    System.out.println(a1);
+                    System.out.println(a2);
+                    displayedMap.collectDeadAnimals();
                     displayedMap.rotateAndMoveEachAnimal();
+                    displayedMap.feedAnimals();
+                    //displayedMap.reproduceAnimals();
+                    displayedMap.growGrassesOnMap();
                 })
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 
-//    Task<Void> task = new Task<Void>() {
-//
-//        @Override
-//        protected Void call() throws InterruptedException {
-//            displayedMap.rotateAndMoveEachAnimal();
-//            Thread.sleep(10000);
-//
-//            return null;
-//        }
-//
-//    };
+
 
     private void dayBreak() {
         Timeline beat = new Timeline(
@@ -108,10 +102,12 @@ public class AppWindow extends Application implements Observer {
                 else
                     ((Rectangle)field[i][j].getChildren().get(0)).setFill(Color.GREEN);
                 mapGrid.add(field[i][j],i,displayedMap.getMapHeight()-1-j);
-                if(displayedMap.getAnimalsSet().containsKey(new Position(i,j))){
+
+                if(displayedMap.getAnimalsSet().containsKey(new Position(i,j)))
                     field[i][j].getChildren().add(getAnimalRepresentation());
-                    ((Circle) field[i][j].getChildren().get(1)).setFill(Color.DEEPPINK);
-                }
+
+                if(displayedMap.getGrassesSet().containsKey(new Position(i,j)))
+                    field[i][j].getChildren().add(getGrassRepresentation());
             }
         }
 
@@ -124,11 +120,27 @@ public class AppWindow extends Application implements Observer {
         return animal;
     }
 
+    public Circle getGrassRepresentation(){
+        Circle grass =new Circle((sceneWidth-displayedMap.getMapWidth())/displayedMap.getMapWidth()/2,(sceneHeight-displayedMap.getMapHeight())/ displayedMap.getMapHeight()/2,(sceneHeight-displayedMap.getMapHeight())/ displayedMap.getMapHeight()/2);
+        grass.setFill(Color.YELLOW);
+        return grass;
+    }
+
     @Override
     public void update(PiceOfInformation piceOfInformation) {
-        mapRepresentation[piceOfInformation.getOldPosition().getX()][piceOfInformation.getOldPosition().getY()].getChildren().remove(1);
-        if(piceOfInformation.getNewPosition()!=null){
-            mapRepresentation[piceOfInformation.getNewPosition().getX()][piceOfInformation.getNewPosition().getY()].getChildren().add(getAnimalRepresentation());
+        //System.out.println(piceOfInformation);
+        if(!piceOfInformation.isGrass()){
+            if(piceOfInformation.getNewPosition()!=null)
+                mapRepresentation[piceOfInformation.getNewPosition().getX()][piceOfInformation.getNewPosition().getY()].getChildren().add(getAnimalRepresentation());
+            if(piceOfInformation.getOldPosition()!=null)
+                mapRepresentation[piceOfInformation.getOldPosition().getX()][piceOfInformation.getOldPosition().getY()].getChildren().remove(1);
         }
+        else{
+            if(piceOfInformation.getNewPosition()!=null)
+                mapRepresentation[piceOfInformation.getNewPosition().getX()][piceOfInformation.getNewPosition().getY()].getChildren().add(getGrassRepresentation());
+            if(piceOfInformation.getOldPosition()!=null)
+                mapRepresentation[piceOfInformation.getOldPosition().getX()][piceOfInformation.getOldPosition().getY()].getChildren().remove(1);
+        }
+
     }
 }
