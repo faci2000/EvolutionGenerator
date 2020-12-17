@@ -1,40 +1,69 @@
 package Map;
 
 import MapElements.Animal;
+import MapElements.Gene;
 import MapElements.Grass;
 import MapElements.Position;
 
 import Observer.Observer;
 import Observer.Observable;
 import Observer.PiceOfInformation;
+import Simulation.GlobalVariables;
+import Visitor.VisitableElement;
+import Visitor.Visitor;
 
 import java.util.*;
 
-public class Map implements Observer, Observable {
+public class Map implements Observer, Observable, VisitableElement {
     private HashMap<Position, PriorityQueue<Animal>> animalsSet;
     private HashMap<Position, Grass> grassesSet;
     private int mapWidth;
     private int mapHeight;
     private int jungleWidth;
     private int jungleHeight;
+    private int grassesInJungle;
     private Position jungleOffset;
     private int mapId;
     ArrayList<Observer> observers;
+    ArrayList<Animal> recentlyDiedAnimals;
+    ArrayList<Animal> newBornAnimals;
 
-    public Map(int mapWidth,int mapHeight,int jungleWidth,int jungleHeight,int mapId){
+    public Map(int mapId,ArrayList<Observer> observers){
         this.animalsSet = new HashMap<>();
         this.grassesSet = new HashMap<>();
-        this.setMapWidth(mapWidth);
-        this.setMapHeight(mapHeight);
-        this.setJungleWidth(jungleWidth);
-        this.setJungleHeight(jungleHeight);
+        this.setMapWidth(GlobalVariables.mapWidth);
+        this.setMapHeight(GlobalVariables.mapHeight);
+        this.setJungleWidth((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth));
+        this.setJungleHeight((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight));
         this.setMapId(mapId);
         setJungleOffset(new Position((mapWidth-jungleWidth)/2,(mapHeight-jungleHeight)/2));
-        this.observers = new ArrayList<>();
+        this.observers = observers;
+        //spawnPrecursors();
     }
 
-    public boolean isInJungle(int x, int y){
-        return ((jungleOffset.getX()<=x)&&((jungleOffset.getX()+ getJungleWidth() -1)>=x)&&(jungleOffset.getY()<=y)&&((jungleOffset.getY()+ getJungleHeight() -1)>=y));
+    public void spawnPrecursors(){
+        newBornAnimals = new ArrayList<>();
+        Animal animal;
+        for(int i=0;i<GlobalVariables.initialNumberOfAnimals;i++){
+            int counter=0;
+            animal = new Animal(Position.generateRandomPositionInRange(this.getMapWidth()-1,this.getMapHeight()-1),0,Gene.generateRandomGene(),GlobalVariables.initialAnimalEnergy,null,null);
+            do{
+                counter++;
+                animal.setPosition(Position.generateRandomPositionInRange(this.getMapWidth()-1,this.getMapHeight()-1));
+            }while((!isFree(animal.getPosition()))&&counter<=GlobalVariables.initialNumberOfAnimals);
+
+            newBornAnimals.add(animal);
+            inform(new PiceOfInformation(null,animal.getPosition()));
+            this.addAnimalToAnimalsSet(animal);
+            animal.addObserver(this);
+        }
+    }
+
+    public static boolean isInJungle(int x, int y){
+        return (((GlobalVariables.mapWidth-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth)))/2<=x)&&
+                (((GlobalVariables.mapWidth-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth)))/2+ ((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth)) -1)>=x)&&
+                ((GlobalVariables.mapHeight-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight)))/2<=y)&&
+                (((GlobalVariables.mapHeight-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight)))/2+ ((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight)) -1)>=y));
     }
 
     public void addAnimalToAnimalsSet(Animal animal){
@@ -68,37 +97,79 @@ public class Map implements Observer, Observable {
 
     private boolean isAnyAnimalOn(Position position){ return this.getAnimalsSet().containsKey(position);}
 
+    private boolean isInJungle(Position position){
+        return (position.getX()<mapWidth&&position.getX()>(jungleOffset.getX()-1+jungleWidth))||
+                (position.getX()>=0&&position.getX()<jungleOffset.getX())||
+                ((position.getX()<=(jungleOffset.getX()-1+jungleWidth)&&position.getX()>=jungleOffset.getX())&&
+                ((position.getY()<mapHeight&&position.getY()>(jungleOffset.getY()-1+jungleHeight))||(position.getY()>=0&&position.getY()< jungleOffset.getY())));
+    }
+
+    private boolean isJungleFullOfGrass(){
+        return grassesInJungle==jungleHeight*jungleWidth;
+    }
+
+    private boolean isFieldFullOfGrass(){
+        return grassesSet.size()-grassesInJungle>=mapHeight*mapWidth-jungleHeight*jungleWidth;
+    }
+
+    private boolean isFree(Position position){
+        return !(isGrassOn(position)||isAnyAnimalOn(position));
+    }
+
+    public int getNumberOfAnimals(){
+        int numberOfAnimals=0;
+        for(Position position : animalsSet.keySet())
+            numberOfAnimals+=animalsSet.get(position).size();
+        return  numberOfAnimals;
+    }
+
     public void growGrassesOnMap(){
         for(int i=0;i<2;i++){
+
             Position newGrassPosition;
-            do{
-                newGrassPosition = Position.generateRandomPositionInRangeWithExcludedScope(getMapWidth(), getMapHeight(), getJungleWidth(), getJungleHeight(), getJungleOffset());
-            }while(isGrassOn(newGrassPosition)||isAnyAnimalOn(newGrassPosition));
-            getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
-            inform(new PiceOfInformation(null,newGrassPosition,true));
-            do{
-                newGrassPosition=Position.generateRandomPositionInRange(getJungleOffset().getX()+ getJungleWidth() -1, getJungleOffset().getY()+ getJungleHeight() -1,getJungleOffset().getX(), getJungleOffset().getY()) ;
-            }while(isGrassOn(newGrassPosition)||isAnyAnimalOn(newGrassPosition));
-            getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
-            inform(new PiceOfInformation(null,newGrassPosition,true));
+            //System.out.println(isFieldFullOfGrass());
+            if(!isFieldFullOfGrass()){
+                int counter=0;
+                do{
+                    counter++;
+                    newGrassPosition = Position.generateRandomPositionInRangeWithExcludedScope(getMapWidth(), getMapHeight(), getJungleWidth(), getJungleHeight(), getJungleOffset());
+                }while((!isFree(newGrassPosition))&&counter<=mapWidth*mapHeight);
+                if((isFree(newGrassPosition))){
+                    getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
+                    inform(new PiceOfInformation(null,newGrassPosition,true));
+                }
+            }
+            //System.out.println(isJungleFullOfGrass());
+            if(!isJungleFullOfGrass()){
+                int counter=0;
+                do{
+                    counter++;
+                    newGrassPosition=Position.generateRandomPositionInRange(getJungleOffset().getX()+ getJungleWidth() -1, getJungleOffset().getY()+ getJungleHeight() -1,getJungleOffset().getX(), getJungleOffset().getY()) ;
+                }while(((!isFree(newGrassPosition)))&&counter<=jungleWidth*jungleHeight);
+                if((isFree(newGrassPosition))){
+                    getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
+                    inform(new PiceOfInformation(null,newGrassPosition,true));
+                    grassesInJungle+=1;
+                }
+            }
         }
     }
 
     public ArrayList<Animal> collectDeadAnimals(){
-        ArrayList<Animal> deadAnimals = new ArrayList<>();
+        recentlyDiedAnimals = new ArrayList<>();
         for (Position position : getAnimalsSet().keySet()) {
             for (Animal animal : getAnimalsSet().get(position)) {
                 if (animal.isDead()) {                        //possible problem with deleting set, before end of iterating
-                    deadAnimals.add(animal);
+                    recentlyDiedAnimals.add(animal);
                     //removeAnimalFromAnimalsSet(animal);
                     inform(new PiceOfInformation(animal.getPosition(),null));
                 }
 
             }
         }
-        for(Animal animal : deadAnimals)
+        for(Animal animal : recentlyDiedAnimals)
                 removeAnimalFromAnimalsSet(animal);
-        return deadAnimals;
+        return recentlyDiedAnimals;
     }
 
     public void rotateAndMoveEachAnimal(){
@@ -135,25 +206,49 @@ public class Map implements Observer, Observable {
     }
 
     public void feedAnimalsUsing(Iterator<Position> positionIterator,HashMap<Position,?> positionHashMap){
+        ArrayList<Position> eatenGrasses = new ArrayList<>();
         while(positionIterator.hasNext()){
             Position checkPosition = positionIterator.next();
             if(positionHashMap.containsKey(checkPosition)){
                 getAnimalsSet().get(checkPosition).peek().eat();
-                removeGrassFromGrassSet(checkPosition);
+                eatenGrasses.add(checkPosition);
+                //removeGrassFromGrassSet(checkPosition);
                 inform(new PiceOfInformation(checkPosition,null,true));
+                if(isInJungle(checkPosition.getX(),checkPosition.getY()))
+                    grassesInJungle-=1;
             }
         }
+        for(Position position : eatenGrasses)
+            removeGrassFromGrassSet(position);
     }
 
     public void reproduceAnimals(){
+        newBornAnimals = new ArrayList<>();
         Iterator<Position> positionIterator = getAnimalsSet().keySet().iterator();
         while(positionIterator.hasNext()) {
             Position animalsPlace = positionIterator.next();
             if(getAnimalsSet().get(animalsPlace).size()>1){
                 Animal newBornAnimal = getAnimalsSet().get(animalsPlace).peek().copulateWith(((Animal) getAnimalsSet().get(animalsPlace).toArray()[1]));
-                addAnimalToAnimalsSet(newBornAnimal);
+                //System.out.println(newBornAnimal);
+                if(newBornAnimal!=null){
+                    //addAnimalToAnimalsSet(newBornAnimal);
+                    int counter=0;
+                    do{
+                        counter++;
+                        newBornAnimal.setPosition(Position.generateRandomPositionAroundOtherPosition(getMapWidth(), getMapHeight(), animalsPlace));
+                    }while((!isFree(newBornAnimal.getPosition()))&&counter<=10);
+                    if((!isFree(newBornAnimal.getPosition()))){
+                        newBornAnimal.setPosition(animalsPlace);
+                    }
+                    newBornAnimals.add(newBornAnimal);
+                    inform(new PiceOfInformation(null,newBornAnimal.getPosition()));
+                    newBornAnimal.addObserver(this);
+
+                }
             }
         }
+        for (Animal animal : newBornAnimals)
+            addAnimalToAnimalsSet(animal);
     }
 
 
@@ -174,7 +269,7 @@ public class Map implements Observer, Observable {
     }
 
     public int getMapWidth() {
-        return mapWidth;
+        return GlobalVariables.mapWidth;
     }
 
     public void setMapWidth(int mapWidth) {
@@ -182,7 +277,7 @@ public class Map implements Observer, Observable {
     }
 
     public int getMapHeight() {
-        return mapHeight;
+        return GlobalVariables.mapHeight;
     }
 
     public void setMapHeight(int mapHeight) {
@@ -241,5 +336,34 @@ public class Map implements Observer, Observable {
     @Override
     public void removeObserver(Observer observer) {
         this.observers.remove(observer);
+    }
+
+    public int getGrassesInJungle() {
+        return grassesInJungle;
+    }
+
+    public void setGrassesInJungle(int grassesInJungle) {
+        this.grassesInJungle = grassesInJungle;
+    }
+
+    @Override
+    public void accept(Visitor visitor, Position key,boolean dead) {
+        if(dead){
+            for(Animal animal:recentlyDiedAnimals)
+                if(animal.getPosition().equals(key)){
+                    visitor.visitRecentlyDead(animal);
+                    return;
+                }
+        }
+        else {
+            for(Animal animal:newBornAnimals)
+                if(animal.getPosition().equals(key)){
+                    visitor.visitNewBornAnimal(animal);
+                    return;
+                }
+        }
+
+
+
     }
 }

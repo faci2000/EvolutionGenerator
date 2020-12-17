@@ -2,7 +2,6 @@ package MapElementsTests;
 
 import MapElements.Animal;
 import MapElements.Gene;
-import MapElements.GlobalVariables;
 import MapElements.Position;
 import org.junit.Test;
 import static org.junit.jupiter.api.Assertions.*;

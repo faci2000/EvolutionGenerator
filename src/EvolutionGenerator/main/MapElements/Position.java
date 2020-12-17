@@ -1,5 +1,7 @@
 package MapElements;
 
+import javafx.geometry.Pos;
+
 import java.util.Objects;
 import java.util.Random;
 
@@ -65,6 +67,14 @@ public class Position {
         int selectedPlace= new Random().nextInt(avbPlaces);
         selectedPlace += Math.min(xExcludedMax*yExcludedMax,((Math.max(0,selectedPlace+1-(offset.y*xMaxRange+ offset.x))==0)?0:Math.ceil((((float)Math.max(0,selectedPlace+1-(offset.y*xMaxRange+ offset.x)))/(xMaxRange-xExcludedMax))))*xExcludedMax);
         return new Position(selectedPlace%xMaxRange,selectedPlace/xMaxRange);
+    }
+
+    public static Position generateRandomPositionAroundOtherPosition(int xMaxRange, int yMaxRange,Position positionOffset){
+        Position returnPosition = Position.generateRandomPositionInRangeWithExcludedScope(3,3,1,1,new Position(1,1));
+        returnPosition.setX(returnPosition.getX()+positionOffset.getX()-1);
+        returnPosition.setY(returnPosition.getY()+positionOffset.getY()-1);
+        returnPosition.checkAndCorrectPosition(xMaxRange,yMaxRange);
+        return  returnPosition;
     }
 
     @Override

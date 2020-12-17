@@ -1,15 +1,14 @@
 package MapElements;
 
-import Map.Map;
 import Observer.Observable;
 import Observer.Observer;
 import Observer.PiceOfInformation;
-import javafx.geometry.Pos;
+import Simulation.GlobalVariables;
 
 import java.util.ArrayList;
 
 public class Animal extends MapItem implements Comparable, Observable {
-    Gene gene;
+    private Gene gene;
     ArrayList<Animal> ancestors;
     ArrayList<Animal> children;
     int energy;
@@ -18,7 +17,7 @@ public class Animal extends MapItem implements Comparable, Observable {
     ArrayList<Observer> observers;
     public Animal(Position position, int mapID, Gene gene, int energy, Animal stronger, Animal weaker) {
         super(position, mapID);
-        this.gene=gene;
+        this.setGene(gene);
         this.ancestors = new ArrayList<>();
         if(stronger!=null)
             ancestors.add(stronger);
@@ -26,7 +25,7 @@ public class Animal extends MapItem implements Comparable, Observable {
             ancestors.add(weaker);
         this.children = new ArrayList<>();
         this.energy=energy;
-        this.id=GlobalVariables.animalsAmount;
+        this.id= GlobalVariables.animalsAmount;
         GlobalVariables.animalsAmount+=1;
 
 
@@ -41,7 +40,7 @@ public class Animal extends MapItem implements Comparable, Observable {
     }
 
     private void changeDirection(){
-        this.direction=Direction.changeDirection(this.direction,this.gene.generateDirection());
+        this.direction=Direction.changeDirection(this.direction, this.getGene().generateDirection());
     }
 
     public void moveYourself(int verticalMapMax, int horizontalMapMax){
@@ -54,7 +53,7 @@ public class Animal extends MapItem implements Comparable, Observable {
     }
 
     public void eat(){
-        this.energy+=Grass.nutritionalValue;
+        this.energy+=GlobalVariables.grassNutritionalValue;
     }
 
     private void decreaseEnergy(){
@@ -67,7 +66,7 @@ public class Animal extends MapItem implements Comparable, Observable {
 
     public Animal copulateWith(Animal other){
         if(this.energy>=4 && other.energy>=4){
-            Animal newAnimal = new Animal(this.getPosition(), this.getMapId(),Gene.generateNewGene(this.gene,other.gene),this.energy/4+other.energy/4,this,other);
+            Animal newAnimal = new Animal(this.getPosition(), this.getMapId(),Gene.generateNewGene(this.getGene(), other.getGene()),this.energy/4+other.energy/4,this,other);
             this.decreaseEnergy();
             other.decreaseEnergy();
             return newAnimal;
@@ -110,4 +109,13 @@ public class Animal extends MapItem implements Comparable, Observable {
     public void removeObserver(Observer observer) {
         this.observers.remove(observer);
     }
+
+    public Gene getGene() {
+        return gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
+
 }
