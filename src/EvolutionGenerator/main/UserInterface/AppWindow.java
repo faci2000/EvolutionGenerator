@@ -11,6 +11,8 @@ import Statistics.Statistics;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -78,34 +80,28 @@ public class AppWindow extends Application implements Observer {
         //displayedMap.addObserver(this);
 
 
-
+        Timeline timeline = new Timeline();
         layout.getChildren().add(mapGrid);
-        layout.getChildren().add(createStatistics());
-
+        layout.getChildren().add(createStatistics(timeline));
 
         primaryStage.setScene(scene);
         primaryStage.show();
 
 
-
-        Timeline timeline = new Timeline(
-
-            new KeyFrame(Duration.seconds(0.1), e -> {
-
-//                    System.out.println(a1);
-//                    System.out.println(a2);
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(0.1), e -> {
                     displayedMap.collectDeadAnimals();
                     displayedMap.rotateAndMoveEachAnimal();
                     displayedMap.feedAnimals();
                     displayedMap.reproduceAnimals();
                     displayedMap.growGrassesOnMap();
-                })
-        );
+        }));
+
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 
-    private VBox createStatistics(){
+    private VBox createStatistics(Timeline timelineToStopStart){
         VBox statisticsVBox=new VBox();
         statisticsVBox.setPadding(new Insets(20));
 
@@ -130,6 +126,23 @@ public class AppWindow extends Application implements Observer {
         }
         statisticsVBox.getChildren().add(genome);
 
+        Button startStopButton = new Button("STOP");
+        startStopButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                if(startStopButton.getText().equals("STOP")){
+                    timelineToStopStart.stop();
+                    startStopButton.setText("START");
+                }
+                else{
+                    timelineToStopStart.play();
+                    startStopButton.setText("STOP");
+                }
+            }
+        });
+        startStopButton.setPrefWidth(100);
+        startStopButton.setPrefHeight(50);
+        statisticsVBox.getChildren().add(startStopButton);
 
         return statisticsVBox;
     }
