@@ -24,6 +24,7 @@ public class Map implements Observer, Observable, VisitableElement {
     private int grassesInJungle;
     private Position jungleOffset;
     private int mapId;
+    private int allAnimalsAmount;
     ArrayList<Observer> observers;
     ArrayList<Animal> recentlyDiedAnimals;
     ArrayList<Animal> newBornAnimals;
@@ -39,6 +40,7 @@ public class Map implements Observer, Observable, VisitableElement {
         setJungleOffset(new Position((mapWidth-jungleWidth)/2,(mapHeight-jungleHeight)/2));
         this.observers = observers;
         //spawnPrecursors();
+        setAllAnimalsAmount(0);
     }
 
     public void spawnPrecursors(){
@@ -53,7 +55,7 @@ public class Map implements Observer, Observable, VisitableElement {
             }while((!isFree(animal.getPosition()))&&counter<=GlobalVariables.initialNumberOfAnimals);
 
             newBornAnimals.add(animal);
-            inform(new PiceOfInformation(null,animal.getPosition()));
+            inform(new PiceOfInformation(null,animal.getPosition(),animal));
             this.addAnimalToAnimalsSet(animal);
             animal.addObserver(this);
         }
@@ -67,6 +69,7 @@ public class Map implements Observer, Observable, VisitableElement {
     }
 
     public void addAnimalToAnimalsSet(Animal animal){
+        allAnimalsAmount +=1;
         addAnimalTo(this.getAnimalsSet(),animal);
     }
 
@@ -136,7 +139,7 @@ public class Map implements Observer, Observable, VisitableElement {
                 }while((!isFree(newGrassPosition))&&counter<=mapWidth*mapHeight);
                 if((isFree(newGrassPosition))){
                     getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
-                    inform(new PiceOfInformation(null,newGrassPosition,true));
+                    inform(new PiceOfInformation(null,newGrassPosition,grassesSet.get(newGrassPosition)));
                 }
             }
             //System.out.println(isJungleFullOfGrass());
@@ -148,7 +151,7 @@ public class Map implements Observer, Observable, VisitableElement {
                 }while(((!isFree(newGrassPosition)))&&counter<=jungleWidth*jungleHeight);
                 if((isFree(newGrassPosition))){
                     getGrassesSet().put(new Position(newGrassPosition),new Grass(newGrassPosition, getMapId()));
-                    inform(new PiceOfInformation(null,newGrassPosition,true));
+                    inform(new PiceOfInformation(null,newGrassPosition,grassesSet.get(newGrassPosition)));
                     grassesInJungle+=1;
                 }
             }
@@ -162,7 +165,7 @@ public class Map implements Observer, Observable, VisitableElement {
                 if (animal.isDead()) {                        //possible problem with deleting set, before end of iterating
                     recentlyDiedAnimals.add(animal);
                     //removeAnimalFromAnimalsSet(animal);
-                    inform(new PiceOfInformation(animal.getPosition(),null));
+                    inform(new PiceOfInformation(animal.getPosition(),null,animal));
                 }
 
             }
@@ -213,7 +216,7 @@ public class Map implements Observer, Observable, VisitableElement {
                 getAnimalsSet().get(checkPosition).peek().eat();
                 eatenGrasses.add(checkPosition);
                 //removeGrassFromGrassSet(checkPosition);
-                inform(new PiceOfInformation(checkPosition,null,true));
+                inform(new PiceOfInformation(checkPosition,null,grassesSet.get(checkPosition)));
                 if(isInJungle(checkPosition.getX(),checkPosition.getY()))
                     grassesInJungle-=1;
             }
@@ -241,7 +244,9 @@ public class Map implements Observer, Observable, VisitableElement {
                         newBornAnimal.setPosition(animalsPlace);
                     }
                     newBornAnimals.add(newBornAnimal);
-                    inform(new PiceOfInformation(null,newBornAnimal.getPosition()));
+                    getAnimalsSet().get(animalsPlace).peek().getChildren().add(newBornAnimal);
+                    ((Animal) getAnimalsSet().get(animalsPlace).toArray()[1]).getChildren().add(newBornAnimal);
+                    inform(new PiceOfInformation(null,newBornAnimal.getPosition(),newBornAnimal));
                     newBornAnimal.addObserver(this);
 
                 }
@@ -365,5 +370,13 @@ public class Map implements Observer, Observable, VisitableElement {
 
 
 
+    }
+
+    public int getAllAnimalsAmount() {
+        return allAnimalsAmount;
+    }
+
+    public void setAllAnimalsAmount(int allAnimalsAmount) {
+        this.allAnimalsAmount = allAnimalsAmount;
     }
 }

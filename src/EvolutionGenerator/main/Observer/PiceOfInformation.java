@@ -1,23 +1,21 @@
 package Observer;
 
+import MapElements.Grass;
+import MapElements.MapItem;
 import MapElements.Position;
 
 public class PiceOfInformation {
     private Position oldPosition;
     private Position newPosition;
-    private boolean isGrass=false;
+    private MapItem mapItem;
 
-    public PiceOfInformation(Position oldPosition,Position newPosition){
+
+    public PiceOfInformation(Position oldPosition,Position newPosition,MapItem mapItem){
         this.setOldPosition(oldPosition);
         this.setNewPosition(newPosition);
+        this.setMapItem(mapItem);
     }
 
-    public PiceOfInformation(Position oldPosition,Position newPosition,boolean isGrass){
-        this.oldPosition = oldPosition;
-        this.newPosition = newPosition;
-        this.setGrass(isGrass);
-
-    }
 
     public Position getOldPosition() {
         return oldPosition;
@@ -36,11 +34,7 @@ public class PiceOfInformation {
     }
 
     public boolean isGrass() {
-        return isGrass;
-    }
-
-    public void setGrass(boolean grass) {
-        isGrass = grass;
+        return getMapItem() instanceof Grass;
     }
 
     @Override
@@ -48,7 +42,15 @@ public class PiceOfInformation {
         return "{" +
                 "oldPosition=" + oldPosition +
                 ", newPosition=" + newPosition +
-                ", isGrass=" + isGrass +
+                ", isGrass=" + isGrass() +
                 '}';
+    }
+
+    public MapItem getMapItem() {
+        return mapItem;
+    }
+
+    public void setMapItem(MapItem mapItem) {
+        this.mapItem = mapItem;
     }
 }

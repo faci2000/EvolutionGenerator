@@ -9,23 +9,24 @@ import java.util.ArrayList;
 
 public class Animal extends MapItem implements Comparable, Observable {
     private Gene gene;
-    ArrayList<Animal> ancestors;
-    ArrayList<Animal> children;
-    int energy;
+    private ArrayList<Animal> ancestors;
+    private ArrayList<Animal> children;
+    private int energy;
     Direction direction;
-    int id;
+    private int id;
     ArrayList<Observer> observers;
+    private int lifeSpan;
     public Animal(Position position, int mapID, Gene gene, int energy, Animal stronger, Animal weaker) {
         super(position, mapID);
         this.setGene(gene);
-        this.ancestors = new ArrayList<>();
+        this.setAncestors(new ArrayList<>());
         if(stronger!=null)
-            ancestors.add(stronger);
+            getAncestors().add(stronger);
         if(weaker!=null)
-            ancestors.add(weaker);
-        this.children = new ArrayList<>();
-        this.energy=energy;
-        this.id= GlobalVariables.animalsAmount;
+            getAncestors().add(weaker);
+        this.setChildren(new ArrayList<>());
+        this.setEnergy(energy);
+        this.setId(GlobalVariables.animalsAmount);
         GlobalVariables.animalsAmount+=1;
 
 
@@ -37,6 +38,7 @@ public class Animal extends MapItem implements Comparable, Observable {
         this.observers = new ArrayList<>();
 //        observers.add(map);
 
+        setLifeSpan(0);
     }
 
     private void changeDirection(){
@@ -49,24 +51,25 @@ public class Animal extends MapItem implements Comparable, Observable {
         this.setPosition(this.getPosition().makeMoveInDirection(this.direction));
         this.getPosition().checkAndCorrectPosition(horizontalMapMax,verticalMapMax);
         this.dailyEnergyDrain();
-        inform(new PiceOfInformation(oldPosition,this.getPosition()));
+        this.setLifeSpan(this.getLifeSpan() + 1);
+        inform(new PiceOfInformation(oldPosition,this.getPosition(),(MapItem) this));
     }
 
     public void eat(){
-        this.energy+=GlobalVariables.grassNutritionalValue;
+        this.setEnergy(this.getEnergy() + GlobalVariables.grassNutritionalValue);
     }
 
     private void decreaseEnergy(){
-        this.energy*=3;
-        this.energy/=4;
+        this.setEnergy(this.getEnergy() * 3);
+        this.setEnergy(this.getEnergy() / 4);
     }
     public void dailyEnergyDrain(){
-        this.energy-=1;
+        this.setEnergy(this.getEnergy() - GlobalVariables.animalsMoveEnergy);
     }
 
     public Animal copulateWith(Animal other){
-        if(this.energy>=4 && other.energy>=4){
-            Animal newAnimal = new Animal(this.getPosition(), this.getMapId(),Gene.generateNewGene(this.getGene(), other.getGene()),this.energy/4+other.energy/4,this,other);
+        if(this.getEnergy() >=4 && other.getEnergy() >=4){
+            Animal newAnimal = new Animal(this.getPosition(), this.getMapId(),Gene.generateNewGene(this.getGene(), other.getGene()), this.getEnergy() /4+ other.getEnergy() /4,this,other);
             this.decreaseEnergy();
             other.decreaseEnergy();
             return newAnimal;
@@ -76,22 +79,22 @@ public class Animal extends MapItem implements Comparable, Observable {
     }
 
     public Boolean isDead(){
-        return energy==0;
+        return getEnergy() ==0;
     }
 
     @Override
     public int compareTo(Object o) {
-        return this.energy-((Animal)o).energy;
+        return this.getEnergy() - ((Animal) o).getEnergy();
     }
 
     @Override
     public boolean equals(Object other) {
-        return this.energy== ((Animal) other).energy;
+        return this.getEnergy() == ((Animal) other).getEnergy();
     }
 
     @Override
     public String toString() {
-        return "Animal "+id+"\n"+position.toString()+"\n"+"Energy: "+energy+"\n";
+        return "Animal "+ getId() +"\n"+position.toString()+"\n"+"Energy: "+ getEnergy() +"\n";
     }
 
     @Override
@@ -118,4 +121,43 @@ public class Animal extends MapItem implements Comparable, Observable {
         this.gene = gene;
     }
 
+    public int getEnergy() {
+        return energy;
+    }
+
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getLifeSpan() {
+        return lifeSpan;
+    }
+
+    public void setLifeSpan(int lifeSpan) {
+        this.lifeSpan = lifeSpan;
+    }
+
+    public ArrayList<Animal> getChildren() {
+        return children;
+    }
+
+    public void setChildren(ArrayList<Animal> children) {
+        this.children = children;
+    }
+
+    public ArrayList<Animal> getAncestors() {
+        return ancestors;
+    }
+
+    public void setAncestors(ArrayList<Animal> ancestors) {
+        this.ancestors = ancestors;
+    }
 }
