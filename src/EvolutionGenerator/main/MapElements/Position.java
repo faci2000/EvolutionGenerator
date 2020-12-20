@@ -1,7 +1,5 @@
 package MapElements;
 
-import javafx.geometry.Pos;
-
 import java.util.Objects;
 import java.util.Random;
 
@@ -20,25 +18,16 @@ public class Position {
     }
 
     public Position makeMoveInDirection(Direction direction){
-        switch (direction){
-            case N:
-                return new Position(this.getX(), this.getY() +1);
-            case NE:
-                return new Position(this.getX() +1, this.getY() +1);
-            case E:
-                return new Position(this.getX() +1, this.getY());
-            case SE:
-                return new Position(this.getX() +1, this.getY() -1);
-            case S:
-                return new Position(this.getX(), this.getY() -1);
-            case SW:
-                return new Position(this.getX() -1, this.getY() -1);
-            case W:
-                return new Position(this.getX() -1, this.getY());
-            default:
-                return new Position(this.getX() -1, this.getY() +1);
-
-        }
+        return switch (direction) {
+            case N -> new Position(this.getX(), this.getY() + 1);
+            case NE -> new Position(this.getX() + 1, this.getY() + 1);
+            case E -> new Position(this.getX() + 1, this.getY());
+            case SE -> new Position(this.getX() + 1, this.getY() - 1);
+            case S -> new Position(this.getX(), this.getY() - 1);
+            case SW -> new Position(this.getX() - 1, this.getY() - 1);
+            case W -> new Position(this.getX() - 1, this.getY());
+            default -> new Position(this.getX() - 1, this.getY() + 1);
+        };
     }
     private int checkRange(int number,int range){
         /*if(number>range)
@@ -84,6 +73,8 @@ public class Position {
 
     @Override
     public boolean equals(Object other) {
+        if(!(other instanceof Position))
+            return false;
         return (this.getX() == ((Position) other).getX())&&(this.getY() == ((Position) other).getY());
     }
     @Override

@@ -9,15 +9,12 @@ import Visitor.Visitor;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -232,10 +229,6 @@ public class Statistics implements Observer, Visitor {
                 this.theMostPopularGeneTab.get(i).set(theMostPopularGeneTab[i]);
         }
 
-    }
-
-    public Map getDescribedMap() {
-        return describedMap;
     }
 
     public void setDescribedMap(Map describedMap) {

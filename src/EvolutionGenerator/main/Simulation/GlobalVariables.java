@@ -1,12 +1,11 @@
 package Simulation;
 
-import org.json.*;
-
-import java.io.FileReader;
-import java.io.IOException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.io.FileReader;
+import java.io.IOException;
 
 public class GlobalVariables {
     public static int initialAnimalEnergy;
@@ -19,7 +18,7 @@ public class GlobalVariables {
     public static double  sceneWidth=720;
     public static double  sceneHeight=720;
     public static double jungleRatio;
-    private static String filePath="parameters.json";
+    private static final String filePath="parameters.json";
 
     public static void getInitialValuesFromFile(){
         JSONParser parser = new JSONParser();
@@ -32,7 +31,7 @@ public class GlobalVariables {
             initialAnimalEnergy = ((Long) initialValues.get("startEnergy")).intValue();
             animalsMoveEnergy = ((Long) initialValues.get("moveEnergy")).intValue();
             grassNutritionalValue = ((Long) initialValues.get("plantEnergy")).intValue();
-            jungleRatio = ((Double) initialValues.get("jungleRatio")).doubleValue();
+            jungleRatio = (Double) initialValues.get("jungleRatio");
         }catch (ParseException | IOException e){
             e.printStackTrace();
         }

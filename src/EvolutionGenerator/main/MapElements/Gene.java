@@ -10,7 +10,7 @@ public class Gene {
     private HashMap<Direction,Integer> genome;
 
     public Gene(int[] genome){
-        this.setGenome(new HashMap<Direction, Integer>());
+        this.setGenome(new HashMap<>());
         for(int i=0;i<Direction.values().length;i++){
             this.getGenome().put(Direction.values()[i],genome[i]);
         }
@@ -97,7 +97,7 @@ public class Gene {
     public boolean equals(Object obj) {
         if(obj instanceof Gene){
             for(int i=0;i<8;i++)
-                if(this.genome.get(Direction.values()[i])!=((Gene) obj).genome.get(Direction.values()[i]))
+                if(!this.genome.get(Direction.values()[i]).equals(((Gene) obj).genome.get(Direction.values()[i])))
                     return false;
             return true;
         }

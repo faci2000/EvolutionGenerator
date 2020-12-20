@@ -3,7 +3,6 @@ package UserInterface;
 import Simulation.Simulation;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
@@ -15,9 +14,10 @@ public class AppWindow extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
 
         TabPane simulations = new TabPane();
+        simulations.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         Simulation simulation1 = new Simulation(1);
         Simulation simulation2 = new Simulation(2);

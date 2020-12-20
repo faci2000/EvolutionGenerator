@@ -26,7 +26,7 @@ public class Simulation {
     public Simulation(int simulationID){
         GlobalVariables.getInitialValuesFromFile();
         setSimulationPlayground(new HBox());
-        ArrayList<Observer> mapObservers = new ArrayList<Observer>();
+        ArrayList<Observer> mapObservers = new ArrayList<>();
 
         statistics = new Statistics();
         mapObservers.add(statistics);

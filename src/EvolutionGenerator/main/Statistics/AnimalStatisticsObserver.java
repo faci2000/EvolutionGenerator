@@ -4,7 +4,6 @@ import Map.Map;
 import MapElements.Animal;
 import Observer.Observer;
 import Observer.PiceOfInformation;
-import UserInterface.temp;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;

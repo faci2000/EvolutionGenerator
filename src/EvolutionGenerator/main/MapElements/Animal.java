@@ -52,7 +52,7 @@ public class Animal extends MapItem implements Comparable, Observable {
         this.getPosition().checkAndCorrectPosition(horizontalMapMax,verticalMapMax);
         this.dailyEnergyDrain();
         this.setLifeSpan(this.getLifeSpan() + 1);
-        inform(new PiceOfInformation(oldPosition,this.getPosition(),(MapItem) this));
+        inform(new PiceOfInformation(oldPosition,this.getPosition(), this));
     }
 
     public void eat(){
@@ -89,7 +89,10 @@ public class Animal extends MapItem implements Comparable, Observable {
 
     @Override
     public boolean equals(Object other) {
-        return this.getEnergy() == ((Animal) other).getEnergy();
+        if(other == null)
+            return false;
+        else
+            return this.getEnergy() == ((Animal) other).getEnergy();
     }
 
     @Override

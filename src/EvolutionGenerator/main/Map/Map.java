@@ -81,19 +81,18 @@ public class Map implements Observer, Observable, VisitableElement {
         animalsSet.get(animal.getPosition()).add(animal);
     }
 
-    public Animal removeAnimalFromAnimalsSet(Animal animal){
-        return removeAnimalFrom(this.getAnimalsSet(),animal);
+    public void removeAnimalFromAnimalsSet(Animal animal){
+        removeAnimalFrom(this.getAnimalsSet(), animal);
     }
 
-    public Animal removeAnimalFrom(HashMap<Position, PriorityQueue<Animal>> animalsSet,Animal animal){
+    public void removeAnimalFrom(HashMap<Position, PriorityQueue<Animal>> animalsSet, Animal animal){
         animalsSet.get(animal.getPosition()).remove(animal);
         if(animalsSet.get(animal.getPosition()).isEmpty())
             animalsSet.remove(animal.getPosition());
-        return animal;
     }
 
-    public Grass removeGrassFromGrassSet(Position position){
-        return getGrassesSet().remove(position);
+    public void removeGrassFromGrassSet(Position position){
+        getGrassesSet().remove(position);
     }
 
     private boolean isGrassOn(Position position){
@@ -102,12 +101,12 @@ public class Map implements Observer, Observable, VisitableElement {
 
     private boolean isAnyAnimalOn(Position position){ return this.getAnimalsSet().containsKey(position);}
 
-    private boolean isInJungle(Position position){
-        return (position.getX()<mapWidth&&position.getX()>(jungleOffset.getX()-1+jungleWidth))||
-                (position.getX()>=0&&position.getX()<jungleOffset.getX())||
-                ((position.getX()<=(jungleOffset.getX()-1+jungleWidth)&&position.getX()>=jungleOffset.getX())&&
-                ((position.getY()<mapHeight&&position.getY()>(jungleOffset.getY()-1+jungleHeight))||(position.getY()>=0&&position.getY()< jungleOffset.getY())));
-    }
+//    private boolean isInJungle(Position position){
+//        return (position.getX()<mapWidth&&position.getX()>(jungleOffset.getX()-1+jungleWidth))||
+//                (position.getX()>=0&&position.getX()<jungleOffset.getX())||
+//                ((position.getX()<=(jungleOffset.getX()-1+jungleWidth)&&position.getX()>=jungleOffset.getX())&&
+//                ((position.getY()<mapHeight&&position.getY()>(jungleOffset.getY()-1+jungleHeight))||(position.getY()>=0&&position.getY()< jungleOffset.getY())));
+//    }
 
     private boolean isJungleFullOfGrass(){
         return grassesInJungle==jungleHeight*jungleWidth;
@@ -121,14 +120,14 @@ public class Map implements Observer, Observable, VisitableElement {
         return !(isGrassOn(position)||isAnyAnimalOn(position));
     }
 
-    public int getNumberOfAnimals(){
-        int numberOfAnimals=0;
-        for(Position position : animalsSet.keySet())
-            numberOfAnimals+=animalsSet.get(position).size();
-        return  numberOfAnimals;
-    }
+//    public int getNumberOfAnimals(){
+//        int numberOfAnimals=0;
+//        for(Position position : animalsSet.keySet())
+//            numberOfAnimals+=animalsSet.get(position).size();
+//        return  numberOfAnimals;
+//    }
 
-    public void growGrassesOnMap(){
+    private void growGrassesOnMap(){
         for(int i=0;i<2;i++){
 
             Position newGrassPosition;
@@ -161,7 +160,7 @@ public class Map implements Observer, Observable, VisitableElement {
         setDay(getDay()+1);
     }
 
-    public ArrayList<Animal> collectDeadAnimals(){
+    private void collectDeadAnimals(){
         recentlyDiedAnimals = new ArrayList<>();
         for (Position position : getAnimalsSet().keySet()) {
             for (Animal animal : getAnimalsSet().get(position)) {
@@ -175,10 +174,9 @@ public class Map implements Observer, Observable, VisitableElement {
         }
         for(Animal animal : recentlyDiedAnimals)
                 removeAnimalFromAnimalsSet(animal);
-        return recentlyDiedAnimals;
     }
 
-    public void rotateAndMoveEachAnimal(){
+    private void rotateAndMoveEachAnimal(){
         HashMap<Position, PriorityQueue<Animal>> refreshedAnimalsSet = new HashMap<>();
         for (Position position : getAnimalsSet().keySet()) {
             for (Animal animal : getAnimalsSet().get(position)) {
@@ -194,24 +192,24 @@ public class Map implements Observer, Observable, VisitableElement {
         return getAnimalsSet().size()>hashMap.size();
     }
 
-    public void feedAnimals(){
+    private void feedAnimals(){
         if(this.hasMoreItemsThan(getGrassesSet()))               // hasMoreItemsThan() is only to make almost whole sentence from java code ;)
             feedAnimalsIteratingOverGrassesSet();
         else
             feedAnimalsIteratingOverAnimalsSet();
     }
 
-    public void feedAnimalsIteratingOverGrassesSet(){
+    private void feedAnimalsIteratingOverGrassesSet(){
         Iterator<Position> grassesPositionIterator = getGrassesSet().keySet().iterator();
         feedAnimalsUsing(grassesPositionIterator, getAnimalsSet());
     }
 
-    public void feedAnimalsIteratingOverAnimalsSet(){
+    private void feedAnimalsIteratingOverAnimalsSet(){
         Iterator<Position> animalPositionIterator = getAnimalsSet().keySet().iterator();
         feedAnimalsUsing(animalPositionIterator, getGrassesSet());
     }
 
-    public void feedAnimalsUsing(Iterator<Position> positionIterator,HashMap<Position,?> positionHashMap){
+    private void feedAnimalsUsing(Iterator<Position> positionIterator,HashMap<Position,?> positionHashMap){
         ArrayList<Position> eatenGrasses = new ArrayList<>();
         while(positionIterator.hasNext()){
             Position checkPosition = positionIterator.next();
@@ -228,28 +226,26 @@ public class Map implements Observer, Observable, VisitableElement {
             removeGrassFromGrassSet(position);
     }
 
-    public void reproduceAnimals(){
+    private void reproduceAnimals(){
         newBornAnimals = new ArrayList<>();
-        Iterator<Position> positionIterator = getAnimalsSet().keySet().iterator();
-        while(positionIterator.hasNext()) {
-            Position animalsPlace = positionIterator.next();
-            if(getAnimalsSet().get(animalsPlace).size()>1){
+        for (Position animalsPlace : getAnimalsSet().keySet()) {
+            if (getAnimalsSet().get(animalsPlace).size() > 1) {
                 Animal newBornAnimal = getAnimalsSet().get(animalsPlace).peek().copulateWith(((Animal) getAnimalsSet().get(animalsPlace).toArray()[1]));
                 //System.out.println(newBornAnimal);
-                if(newBornAnimal!=null){
+                if (newBornAnimal != null) {
                     //addAnimalToAnimalsSet(newBornAnimal);
-                    int counter=0;
-                    do{
+                    int counter = 0;
+                    do {
                         counter++;
                         newBornAnimal.setPosition(Position.generateRandomPositionAroundOtherPosition(getMapWidth(), getMapHeight(), animalsPlace));
-                    }while((!isFree(newBornAnimal.getPosition()))&&counter<=10);
-                    if((!isFree(newBornAnimal.getPosition()))){
+                    } while ((!isFree(newBornAnimal.getPosition())) && counter <= 10);
+                    if ((!isFree(newBornAnimal.getPosition()))) {
                         newBornAnimal.setPosition(animalsPlace);
                     }
                     newBornAnimals.add(newBornAnimal);
                     getAnimalsSet().get(animalsPlace).peek().getChildren().add(newBornAnimal);
                     ((Animal) getAnimalsSet().get(animalsPlace).toArray()[1]).getChildren().add(newBornAnimal);
-                    inform(new PiceOfInformation(null,newBornAnimal.getPosition(),newBornAnimal));
+                    inform(new PiceOfInformation(null, newBornAnimal.getPosition(), newBornAnimal));
                     newBornAnimal.addObserver(this);
 
                 }
@@ -277,10 +273,6 @@ public class Map implements Observer, Observable, VisitableElement {
 
     public HashMap<Position, Grass> getGrassesSet() {
         return grassesSet;
-    }
-
-    public void setGrassesSet(HashMap<Position, Grass> grassesSet) {
-        this.grassesSet = grassesSet;
     }
 
     public int getMapWidth() {
@@ -351,14 +343,6 @@ public class Map implements Observer, Observable, VisitableElement {
     @Override
     public void removeObserver(Observer observer) {
         this.observers.remove(observer);
-    }
-
-    public int getGrassesInJungle() {
-        return grassesInJungle;
-    }
-
-    public void setGrassesInJungle(int grassesInJungle) {
-        this.grassesInJungle = grassesInJungle;
     }
 
     @Override
