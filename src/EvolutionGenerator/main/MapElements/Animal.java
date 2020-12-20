@@ -68,7 +68,7 @@ public class Animal extends MapItem implements Comparable, Observable {
     }
 
     public Animal copulateWith(Animal other){
-        if(this.getEnergy() >=4 && other.getEnergy() >=4){
+        if(this.getEnergy() >=GlobalVariables.initialAnimalEnergy/2 && other.getEnergy() >= GlobalVariables.initialAnimalEnergy/2){
             Animal newAnimal = new Animal(this.getPosition(), this.getMapId(),Gene.generateNewGene(this.getGene(), other.getGene()), this.getEnergy() /4+ other.getEnergy() /4,this,other);
             this.decreaseEnergy();
             other.decreaseEnergy();
@@ -84,7 +84,7 @@ public class Animal extends MapItem implements Comparable, Observable {
 
     @Override
     public int compareTo(Object o) {
-        return this.getEnergy() - ((Animal) o).getEnergy();
+        return   ((Animal) o).getEnergy() - this.getEnergy();
     }
 
     @Override

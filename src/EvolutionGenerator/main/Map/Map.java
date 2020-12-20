@@ -28,6 +28,7 @@ public class Map implements Observer, Observable, VisitableElement {
     ArrayList<Observer> observers;
     ArrayList<Animal> recentlyDiedAnimals;
     ArrayList<Animal> newBornAnimals;
+    private int day;
 
     public Map(int mapId,ArrayList<Observer> observers){
         this.animalsSet = new HashMap<>();
@@ -41,6 +42,7 @@ public class Map implements Observer, Observable, VisitableElement {
         this.observers = observers;
         //spawnPrecursors();
         setAllAnimalsAmount(0);
+        setDay(1);
     }
 
     public void spawnPrecursors(){
@@ -156,6 +158,7 @@ public class Map implements Observer, Observable, VisitableElement {
                 }
             }
         }
+        setDay(getDay()+1);
     }
 
     public ArrayList<Animal> collectDeadAnimals(){
@@ -256,6 +259,13 @@ public class Map implements Observer, Observable, VisitableElement {
             addAnimalToAnimalsSet(animal);
     }
 
+    public void dayCycle(){
+        this.collectDeadAnimals();
+        this.rotateAndMoveEachAnimal();
+        this.feedAnimals();
+        this.reproduceAnimals();
+        this.growGrassesOnMap();
+    }
 
     public HashMap<Position, PriorityQueue<Animal>> getAnimalsSet() {
         return animalsSet;
@@ -378,5 +388,13 @@ public class Map implements Observer, Observable, VisitableElement {
 
     public void setAllAnimalsAmount(int allAnimalsAmount) {
         this.allAnimalsAmount = allAnimalsAmount;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
     }
 }

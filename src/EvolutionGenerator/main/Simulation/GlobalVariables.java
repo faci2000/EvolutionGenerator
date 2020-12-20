@@ -16,6 +16,8 @@ public class GlobalVariables {
     public static int initialNumberOfAnimals;
     public static int mapWidth;
     public static int mapHeight;
+    public static double  sceneWidth=720;
+    public static double  sceneHeight=720;
     public static double jungleRatio;
     private static String filePath="parameters.json";
 

@@ -1,0 +1,7 @@
+Statistics from map 1 after 624 days
+Average number of animals: 41.2
+Average number of grasses: 255.59
+Average live animals' life span: 145.49
+Average dead animals' life span: 37.9
+Average live animals' fertility rate: 0.33
+The most popular genome / number of animals have had: E->6, N->5, SE->4, NW->1, NE->2, S->3, W->4, SW->7 / 2
