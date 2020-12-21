@@ -30,14 +30,14 @@ public class MapVisualisation implements Observer {
     }
 
     public Circle getAnimalRepresentation(int animalEnergy){
-        Circle animal =new Circle((GlobalVariables.sceneWidth)/ GlobalVariables.mapWidth/2,(GlobalVariables.sceneHeight)/ GlobalVariables.mapHeight/2,(GlobalVariables.sceneHeight)/ GlobalVariables.mapHeight/2);
+        Circle animal =new Circle((GlobalVariables.SCENE_WIDTH)/ GlobalVariables.MAP_WIDTH /2,(GlobalVariables.SCENE_HEIGHT)/ GlobalVariables.MAP_HEIGHT /2,(GlobalVariables.SCENE_HEIGHT)/ GlobalVariables.MAP_HEIGHT /2);
         animal.setFill(Color.DEEPPINK);
-        animal.setOpacity(Math.min(1, ((float) animalEnergy)/GlobalVariables.initialAnimalEnergy));
+        animal.setOpacity(Math.min(1, ((float) animalEnergy)/GlobalVariables.INITIAL_ANIMAL_ENERGY));
         return animal;
     }
 
     public Circle getGrassRepresentation(){
-        Circle grass =new Circle((GlobalVariables.sceneWidth)/GlobalVariables.mapWidth/2,(GlobalVariables.sceneHeight)/ GlobalVariables.mapHeight/2,(GlobalVariables.sceneHeight)/ GlobalVariables.mapHeight/2);
+        Circle grass =new Circle((GlobalVariables.SCENE_WIDTH)/GlobalVariables.MAP_WIDTH /2,(GlobalVariables.SCENE_HEIGHT)/ GlobalVariables.MAP_HEIGHT /2,(GlobalVariables.SCENE_HEIGHT)/ GlobalVariables.MAP_HEIGHT /2);
         grass.setFill(Color.YELLOW);
         return grass;
     }
@@ -54,15 +54,15 @@ public class MapVisualisation implements Observer {
     }
 
     public Group[][] drawMap(Statistics statistics){
-        Group[][] field = new Group[GlobalVariables.mapWidth][GlobalVariables.mapHeight];
-        for(int i=0;i<GlobalVariables.mapWidth;i++){
-            for (int j=0;j<GlobalVariables.mapHeight;j++){
-                field[i][j]=new Group(new Rectangle(0,0,(GlobalVariables.sceneWidth)/GlobalVariables.mapWidth, (GlobalVariables.sceneHeight)/ GlobalVariables.mapHeight));
+        Group[][] field = new Group[GlobalVariables.MAP_WIDTH][GlobalVariables.MAP_HEIGHT];
+        for(int i = 0; i<GlobalVariables.MAP_WIDTH; i++){
+            for (int j = 0; j<GlobalVariables.MAP_HEIGHT; j++){
+                field[i][j]=new Group(new Rectangle(0,0,(GlobalVariables.SCENE_WIDTH)/GlobalVariables.MAP_WIDTH, (GlobalVariables.SCENE_HEIGHT)/ GlobalVariables.MAP_HEIGHT));
                 if(Map.isInJungle(i,j))
                     ((Rectangle)field[i][j].getChildren().get(0)).setFill(Color.DARKGREEN);
                 else
                     ((Rectangle)field[i][j].getChildren().get(0)).setFill(Color.GREEN);
-                getMapRepresentation().add(field[i][j],i,GlobalVariables.mapHeight-1-j);
+                getMapRepresentation().add(field[i][j],i,GlobalVariables.MAP_HEIGHT -1-j);
             }
         }
         ButtonType observeThisAnimal = new ButtonType("Observe this Animal", ButtonBar.ButtonData.APPLY);
@@ -74,20 +74,20 @@ public class MapVisualisation implements Observer {
                     Node clickedNode = event.getPickResult().getIntersectedNode();
                     Integer colIndex = GridPane.getColumnIndex(clickedNode.getParent());
                     Integer rowIndex = GridPane.getRowIndex(clickedNode.getParent());
-                    System.out.println(colIndex + ":" + Math.abs(rowIndex-GlobalVariables.mapWidth+1));
+                    System.out.println(colIndex + ":" + Math.abs(rowIndex-GlobalVariables.MAP_WIDTH +1));
 
                     if(clickedNode instanceof Circle){
                         if(((Circle) clickedNode).getFill()==Color.DEEPPINK){
                             Alert alert = new Alert(Alert.AlertType.INFORMATION,"",observeThisAnimal,close);
                             alert.setTitle("Animal Information");
                             alert.setHeaderText("You clicked and animal!");
-                            alert.setContentText(displayedMap.getAnimalsSet().get(new Position(colIndex,Math.abs(rowIndex-GlobalVariables.mapWidth+1))).peek().toString()+"Genome:\n"+
-                                    displayedMap.getAnimalsSet().get(new Position(colIndex,Math.abs(rowIndex-GlobalVariables.mapWidth+1))).peek().getGene().toString());
+                            alert.setContentText(displayedMap.getAnimalsSet().get(new Position(colIndex,Math.abs(rowIndex-GlobalVariables.MAP_WIDTH +1))).peek().toString()+"Genome:\n"+
+                                    displayedMap.getAnimalsSet().get(new Position(colIndex,Math.abs(rowIndex-GlobalVariables.MAP_WIDTH +1))).peek().getGene().toString());
 
                             alert.showAndWait().ifPresent(response -> {
                                 if (response == observeThisAnimal){
                                     System.out.println("Observing started");
-                                    statistics.getAnimalToObserve().setObservedAnimal(displayedMap.getAnimalsSet().get(new Position(colIndex,Math.abs(rowIndex-GlobalVariables.mapWidth+1))).peek());
+                                    statistics.getAnimalToObserve().setObservedAnimal(displayedMap.getAnimalsSet().get(new Position(colIndex,Math.abs(rowIndex-GlobalVariables.MAP_WIDTH +1))).peek());
                                 }
                             });
                         }

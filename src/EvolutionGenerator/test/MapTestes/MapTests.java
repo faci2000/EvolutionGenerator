@@ -20,7 +20,7 @@ public class MapTests {
     @Test
     public void spawnPrecursorsTest(){
         testMap.spawnPrecursors();
-        assertEquals(GlobalVariables.initialNumberOfAnimals,testMap.getAnimalsSet().size());
+        assertEquals(GlobalVariables.INITIAL_NUMBER_OF_ANIMALS,testMap.getAnimalsSet().size());
     }
 
 

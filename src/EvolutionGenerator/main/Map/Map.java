@@ -33,10 +33,10 @@ public class Map implements Observer, Observable, VisitableElement {
     public Map(int mapId,ArrayList<Observer> observers){
         this.animalsSet = new HashMap<>();
         this.grassesSet = new HashMap<>();
-        this.setMapWidth(GlobalVariables.mapWidth);
-        this.setMapHeight(GlobalVariables.mapHeight);
-        this.setJungleWidth((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth));
-        this.setJungleHeight((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight));
+        this.setMapWidth(GlobalVariables.MAP_WIDTH);
+        this.setMapHeight(GlobalVariables.MAP_HEIGHT);
+        this.setJungleWidth((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_WIDTH));
+        this.setJungleHeight((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_HEIGHT));
         this.setMapId(mapId);
         setJungleOffset(new Position((mapWidth-jungleWidth)/2,(mapHeight-jungleHeight)/2));
         this.observers = observers;
@@ -48,13 +48,13 @@ public class Map implements Observer, Observable, VisitableElement {
     public void spawnPrecursors(){
         newBornAnimals = new ArrayList<>();
         Animal animal;
-        for(int i=0;i<GlobalVariables.initialNumberOfAnimals;i++){
+        for(int i = 0; i<GlobalVariables.INITIAL_NUMBER_OF_ANIMALS; i++){
             int counter=0;
-            animal = new Animal(Position.generateRandomPositionInRange(this.getMapWidth()-1,this.getMapHeight()-1),0,Gene.generateRandomGene(),GlobalVariables.initialAnimalEnergy,null,null);
+            animal = new Animal(Position.generateRandomPositionInRange(this.getMapWidth()-1,this.getMapHeight()-1),0,Gene.generateRandomGene(),GlobalVariables.INITIAL_ANIMAL_ENERGY,null,null);
             do{
                 counter++;
                 animal.setPosition(Position.generateRandomPositionInRange(this.getMapWidth()-1,this.getMapHeight()-1));
-            }while((!isFree(animal.getPosition()))&&counter<=GlobalVariables.initialNumberOfAnimals);
+            }while((!isFree(animal.getPosition()))&&counter<=GlobalVariables.INITIAL_NUMBER_OF_ANIMALS);
 
             newBornAnimals.add(animal);
             inform(new PiceOfInformation(null,animal.getPosition(),animal));
@@ -64,10 +64,10 @@ public class Map implements Observer, Observable, VisitableElement {
     }
 
     public static boolean isInJungle(int x, int y){
-        return (((GlobalVariables.mapWidth-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth)))/2<=x)&&
-                (((GlobalVariables.mapWidth-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth)))/2+ ((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapWidth)) -1)>=x)&&
-                ((GlobalVariables.mapHeight-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight)))/2<=y)&&
-                (((GlobalVariables.mapHeight-((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight)))/2+ ((int) Math.round(GlobalVariables.jungleRatio*GlobalVariables.mapHeight)) -1)>=y));
+        return (((GlobalVariables.MAP_WIDTH -((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_WIDTH)))/2<=x)&&
+                (((GlobalVariables.MAP_WIDTH -((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_WIDTH)))/2+ ((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_WIDTH)) -1)>=x)&&
+                ((GlobalVariables.MAP_HEIGHT -((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_HEIGHT)))/2<=y)&&
+                (((GlobalVariables.MAP_HEIGHT -((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_HEIGHT)))/2+ ((int) Math.round(GlobalVariables.JUNGLE_RATIO *GlobalVariables.MAP_HEIGHT)) -1)>=y));
     }
 
     public void addAnimalToAnimalsSet(Animal animal){
@@ -276,7 +276,7 @@ public class Map implements Observer, Observable, VisitableElement {
     }
 
     public int getMapWidth() {
-        return GlobalVariables.mapWidth;
+        return GlobalVariables.MAP_WIDTH;
     }
 
     public void setMapWidth(int mapWidth) {
@@ -284,7 +284,7 @@ public class Map implements Observer, Observable, VisitableElement {
     }
 
     public int getMapHeight() {
-        return GlobalVariables.mapHeight;
+        return GlobalVariables.MAP_HEIGHT;
     }
 
     public void setMapHeight(int mapHeight) {

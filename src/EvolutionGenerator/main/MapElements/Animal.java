@@ -26,8 +26,8 @@ public class Animal extends MapItem implements Comparable, Observable {
             getAncestors().add(weaker);
         this.setChildren(new ArrayList<>());
         this.setEnergy(energy);
-        this.setId(GlobalVariables.animalsAmount);
-        GlobalVariables.animalsAmount+=1;
+        this.setId(GlobalVariables.ANIMALS_AMOUNT);
+        GlobalVariables.ANIMALS_AMOUNT +=1;
 
 
         if(stronger!=null)
@@ -56,7 +56,7 @@ public class Animal extends MapItem implements Comparable, Observable {
     }
 
     public void eat(){
-        this.setEnergy(this.getEnergy() + GlobalVariables.grassNutritionalValue);
+        this.setEnergy(this.getEnergy() + GlobalVariables.GRASS_NUTRITIONAL_VALUE);
     }
 
     private void decreaseEnergy(){
@@ -64,11 +64,11 @@ public class Animal extends MapItem implements Comparable, Observable {
         this.setEnergy(this.getEnergy() / 4);
     }
     public void dailyEnergyDrain(){
-        this.setEnergy(this.getEnergy() - GlobalVariables.animalsMoveEnergy);
+        this.setEnergy(this.getEnergy() - GlobalVariables.ANIMALS_MOVEMENT_ENERGY);
     }
 
     public Animal copulateWith(Animal other){
-        if(this.getEnergy() >=GlobalVariables.initialAnimalEnergy/2 && other.getEnergy() >= GlobalVariables.initialAnimalEnergy/2){
+        if(this.getEnergy() >=GlobalVariables.INITIAL_ANIMAL_ENERGY /2 && other.getEnergy() >= GlobalVariables.INITIAL_ANIMAL_ENERGY /2){
             Animal newAnimal = new Animal(this.getPosition(), this.getMapId(),Gene.generateNewGene(this.getGene(), other.getGene()), this.getEnergy() /4+ other.getEnergy() /4,this,other);
             this.decreaseEnergy();
             other.decreaseEnergy();
@@ -79,7 +79,7 @@ public class Animal extends MapItem implements Comparable, Observable {
     }
 
     public Boolean isDead(){
-        return getEnergy() ==0;
+        return getEnergy() <GlobalVariables.ANIMALS_MOVEMENT_ENERGY;
     }
 
     @Override
